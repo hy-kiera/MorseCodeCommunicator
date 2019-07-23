@@ -71,7 +71,6 @@
         android:layout_marginLeft="8dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="SEND TEXT"
         app:layout_constraintStart_toEndOf="@+id/btnSendData"
         app:layout_constraintTop_toTopOf="@+id/btnSendData" />
 

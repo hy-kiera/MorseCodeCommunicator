@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.HashMap;
+import java.lang.String;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -48,6 +50,55 @@ public class MainActivity extends AppCompatActivity {
     final static int BT_MESSAGE_READ = 2;
     final static int BT_CONNECTING_STATUS = 3;
     final static UUID BT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+    // Morse Code Table
+    public static HashMap<String, String> morseCode;
+    static {
+        morseCode = new HashMap<>();
+        morseCode.put("A", "-");
+        morseCode.put("B", "=...");
+        morseCode.put("C", "-.-");
+        morseCode.put("D", "-..");
+        morseCode.put("E", ".");
+        morseCode.put("F", "..-.");
+        morseCode.put("G", "--.");
+        morseCode.put("H", "....");
+        morseCode.put("I", "..");
+        morseCode.put("J", ".---");
+        morseCode.put("K", "-.-");
+        morseCode.put("L", "-..");
+        morseCode.put("M", "--");
+        morseCode.put("N", "-.");
+        morseCode.put("O", "---");
+        morseCode.put("P", ".--.");
+        morseCode.put("Q", "--.-");
+        morseCode.put("R", ".-.");
+        morseCode.put("S", "...");
+        morseCode.put("T", "-");
+        morseCode.put("U", "..-");
+        morseCode.put("V", "...-");
+        morseCode.put("W", ".--");
+        morseCode.put("X", "-..-");
+        morseCode.put("Y", "-.--");
+        morseCode.put("Z", "--..");
+        morseCode.put("1", "----");
+        morseCode.put("2", "..---");
+        morseCode.put("3", "...--");
+        morseCode.put("4", "....-");
+        morseCode.put("5", ".....");
+        morseCode.put("6", "-....");
+        morseCode.put("7", "--...");
+        morseCode.put("8", "---..");
+        morseCode.put("9", "----.");
+        morseCode.put("0", "-----");
+        morseCode.put(",", "--..--");
+        morseCode.put(".", ".-.-.-");
+        morseCode.put("?", "..--..");
+        morseCode.put("/", "-..-.");
+        morseCode.put("-", "....-");
+        morseCode.put("(", "-.--.");
+        morseCode.put(")", "-.--.-");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,8 +137,15 @@ public class MainActivity extends AppCompatActivity {
         mBtnSendData.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String writeMessage = null;
+                String encryptedMessage = null;
                 if(mThreadConnectedBluetooth != null) {
-                    mThreadConnectedBluetooth.write(mTvSendData.getText().toString());
+                    // mThreadConnectedBluetooth.write(mTvSendData.getText().toString());
+                    // TODO : encode the mTvSendData.getText().toString()
+                    writeMessage = mTvSendData.getText().toString();
+//                    encryptedMessage = encryptMessage(writeMessage);
+//                    mThreadConnectedBluetooth.write(encryptedMessage);
+                    mThreadConnectedBluetooth.write(writeMessage);
                     mTvSendData.setText("");
                 }
             }
@@ -96,16 +154,69 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(android.os.Message msg){
                 if(msg.what == BT_MESSAGE_READ){
                     String readMessage = null;
+                    String decryptedMessage = null;
                     try {
-                        readMessage = new String((byte[]) msg.obj, "UTF-8");
+                        readMessage = new String((byte[]) msg.obj, "UTF-8"); // received message
+                        // TODO : decode the readMessage(morse code)
+//                        decryptedMessage = decryptMessage(readMessage);
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-                    mTvReceiveData.setText(readMessage);
+                     mTvReceiveData.setText(readMessage);
+//                    mTvReceiveData.setText(decryptedMessage);
                 }
             }
         };
     }
+
+    /* encrypt morse code */
+    // text -> morse code
+    private String encryptMessage(String plainText) {
+        String enText = null;
+        char tmp;
+
+        for (int i = 0; i < plainText.length(); i++) {
+            tmp = plainText.charAt(i);
+            enText.concat(morseCode.get(tmp));
+            enText.concat(" ");
+        }
+
+        return enText;
+    }
+
+    /* decrypt morse code */
+    // morse code -> text
+    private String decryptMessage(String morseCodeText) {
+        String deText = null;
+        String tmp = null;
+        String tmp2 = null;
+        String[] words = null;
+        int i;
+
+        words = morseCodeText.split(" ");
+
+        i = 0;
+        while(words[i] != null) {
+            tmp = words[i];
+            tmp2 = getKey(morseCode, tmp);
+            deText.concat(tmp2);
+            i++;
+        }
+
+        return deText;
+    }
+
+    private String getKey(HashMap<String, String> morseCode, String mCode) {
+        for (String plainText : morseCode.keySet()) {
+            if (plainText.equals(mCode)) {
+                return plainText;
+            }
+        }
+        return "?";
+    }
+
+
+    /* bluetooth on */
     void bluetoothOn() {
         if(mBluetoothAdapter == null) {
             Toast.makeText(getApplicationContext(), "This device doesn't support BLUETOOTH", Toast.LENGTH_LONG).show();
@@ -122,6 +233,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    /* bluetooth off */
     void bluetoothOff() {
         if (mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.disable();
@@ -132,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Already BLUETOOTH is deactivate", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /* bluetooth activation check */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -147,6 +262,8 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+    /* list paired devices */
     void listPairedDevices() {
         if (mBluetoothAdapter.isEnabled()) {
             mPairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -179,6 +296,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "BLUETOOTH is deactivate", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /* bluetooth connect to selected device */
     void connectSelectedDevice(String selectedDeviceName) {
         for(BluetoothDevice tempDevice : mPairedDevices) {
             if (selectedDeviceName.equals(tempDevice.getName())) {
@@ -197,6 +316,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /* connection thread */
     private class ConnectedBluetoothThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
