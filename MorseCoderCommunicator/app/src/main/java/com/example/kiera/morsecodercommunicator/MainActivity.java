@@ -1,5 +1,6 @@
 package com.example.kiera.morsecodercommunicator;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     TextView mTvBluetoothStatus;
     TextView mTvReceiveData;
     TextView mTvSendData;
+    TextView mTvLogData;
+
     Button mBtnBluetoothOn;
     Button mBtnBluetoothOff;
     Button mBtnConnect;
@@ -49,6 +53,21 @@ public class MainActivity extends AppCompatActivity {
     final static int BT_CONNECTING_STATUS = 3;
     final static UUID BT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+    static String[] alphanum = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+            "K", "L", "M", "N", "O", "P", "G", "R", "S", "T", "U", "V",
+            "W", "X", "Y", "Z", "1", "2", "3", "4", "5", "6", "7", "8",
+            "9", "0","!", ",", "?", ".", "'"};
+    static String[] morse = { ".-", "-...", "-.-.", "-..", ".", "..-.", "--.",
+            "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.",
+            "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-",
+            "-.--", "--..", ".----", "..---", "...--", "....-", ".....",
+            "-....", "--...", "---..", "----.", "-----","-.-.--", "--..--", "..--..", ".-.-.-", ".----.",};
+
+    String logMessage = "";
+    String EnBuild;
+    String DeBuild;
+
+    @SuppressLint("HandlerLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,13 +76,14 @@ public class MainActivity extends AppCompatActivity {
         mTvBluetoothStatus = (TextView)findViewById(R.id.tvBluetoothStatus);
         mTvReceiveData = (TextView)findViewById(R.id.tvReceiveData);
         mTvSendData =  (EditText) findViewById(R.id.tvSendData);
+        mTvLogData = (TextView) findViewById(R.id.tvLogData);
+
         mBtnBluetoothOn = (Button)findViewById(R.id.btnBluetoothOn);
         mBtnBluetoothOff = (Button)findViewById(R.id.btnBluetoothOff);
         mBtnConnect = (Button)findViewById(R.id.btnConnect);
         mBtnSendData = (Button)findViewById(R.id.btnSendData);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
 
         mBtnBluetoothOn.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -87,7 +107,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(mThreadConnectedBluetooth != null) {
-                    mThreadConnectedBluetooth.write(mTvSendData.getText().toString());
+                    String deMessage;
+//                    mThreadConnectedBluetooth.write(mTvSendData.getText().toString());
+                    deMessage = decodeEnglish(mTvSendData.getText().toString());
+                    mThreadConnectedBluetooth.write(deMessage);
                     mTvSendData.setText("");
                 }
             }
@@ -95,17 +118,65 @@ public class MainActivity extends AppCompatActivity {
         mBluetoothHandler = new Handler(){
             public void handleMessage(android.os.Message msg){
                 if(msg.what == BT_MESSAGE_READ){
-                    String readMessage = null;
+                    String readMessage = "";
+                    String enMessage;
                     try {
+                        readMessage = "";
                         readMessage = new String((byte[]) msg.obj, "UTF-8");
+                        Toast.makeText(getApplicationContext(), readMessage, Toast.LENGTH_LONG).show();
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-                    mTvReceiveData.setText(readMessage);
+//                    mTvReceiveData.setText(readMessage);
+                    enMessage = decode(readMessage);
+                    mTvReceiveData.setText(enMessage);
+                    logMessage = enMessage + logMessage + "\n";
+                    mTvLogData.setText(logMessage);
                 }
             }
         };
     }
+
+    public String decode(String morseCode) {
+        EnBuild = ""; // clear
+        String change = morseCode;
+        String[] words = change.split("\\s+"); // split each word
+        for (String word : words) {
+            for(String letter : word.split(" ")) {
+                for (int x = 0; x < morse.length; x++) {
+                    if (letter.equals(morse[x])) {
+                        EnBuild += alphanum[x];
+                    }
+                }
+            }
+            EnBuild += " ";
+        }
+
+        return EnBuild;
+    }
+
+    public String decodeEnglish(String englishCode) {
+        DeBuild = ""; // clear
+        String change = englishCode;
+        String [] words = new String [change.length()];
+        for(int i = 0; i < change.length(); i++)
+            words[i] = String.valueOf(change.charAt(i));
+        for(String word : words){
+            for(int i = 0; i < word.length(); i++) {
+                for (int x = 0; x < alphanum.length; x++) {
+                    if (word.substring(i, i+1).equalsIgnoreCase(alphanum[x])) {
+                        DeBuild += morse[x];
+                    }
+                }
+            }
+            DeBuild += " ";
+        }
+
+//        Toast.makeText(getApplicationContext(), build, Toast.LENGTH_LONG).show();
+
+        return DeBuild;
+    }
+
     void bluetoothOn() {
         if(mBluetoothAdapter == null) {
             Toast.makeText(getApplicationContext(), "This device doesn't support BLUETOOTH", Toast.LENGTH_LONG).show();
@@ -138,10 +209,10 @@ public class MainActivity extends AppCompatActivity {
             case BT_REQUEST_ENABLE:
                 if (resultCode == RESULT_OK) { // 블루투스 활성화를 확인을 클릭하였다면
                     Toast.makeText(getApplicationContext(), "BLUETOOTH ON", Toast.LENGTH_LONG).show();
-                    mTvBluetoothStatus.setText("ON");
+                    mTvBluetoothStatus.setText("ACTIVATE");
                 } else if (resultCode == RESULT_CANCELED) { // 블루투스 활성화를 취소를 클릭하였다면
                     Toast.makeText(getApplicationContext(), "CANCELE", Toast.LENGTH_LONG).show();
-                    mTvBluetoothStatus.setText("OFF");
+                    mTvBluetoothStatus.setText("DEACTIVATE");
                 }
                 break;
         }
@@ -223,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
 
             while (true) {
                 try {
-                    bytes = mmInStream.available();
+                    bytes = mmInStream.available(); // blocking I/O
                     if (bytes != 0) {
                         SystemClock.sleep(100);
                         bytes = mmInStream.available();

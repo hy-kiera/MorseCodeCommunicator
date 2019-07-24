@@ -3,4 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="mainbg">#272625</color>
+    <color name="btncolor">#52525F</color>
+    <color name="textview">#5E5E5F</color>
+    <color name="textColor">#FFFFFF</color>
+    <color name="btnTextColor">#FFFFF5</color>
+    <color name="editTextLine">#F1404B</color>
 </resources>
