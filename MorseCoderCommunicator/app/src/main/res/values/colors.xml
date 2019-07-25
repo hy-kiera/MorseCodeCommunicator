@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="mainbg">#272625</color>
-    <color name="btncolor">#52525F</color>
-    <color name="textview">#5E5E5F</color>
+    <color name="colorPrimary">#1D2475</color>
+    <color name="colorPrimaryDark">#1D2475</color>
+    <color name="colorAccent">#F8F8F8</color>
+    <color name="mainbg">#1F1F1F</color>
+    <color name="btncolor">#1D2475</color>
+    <color name="textview">#3F3D42</color>
     <color name="textColor">#FFFFFF</color>
-    <color name="btnTextColor">#FFFFF5</color>
-    <color name="editTextLine">#F1404B</color>
+    <color name="btnTextColor">#FFFFFF</color>
+    <color name="editTextLine">#F7931E</color>
+    <color name="receiveText">#FFFFFF</color>
 </resources>

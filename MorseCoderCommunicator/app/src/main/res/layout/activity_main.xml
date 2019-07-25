@@ -102,7 +102,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="10dp"
-                android:ems="10"
+                android:ems="13"
                 android:backgroundTint="@color/editTextLine"
                 android:textColor="@color/textColor"
                 android:inputType="textPersonName"
@@ -118,9 +118,9 @@
             android:layout_marginTop="25dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:text="RECEIVE"
+            android:text="RECEIVED MESSAGE"
             android:background="@color/textview"
-            android:textColor="@color/textColor"
+            android:textColor="@color/receiveText"
             app:layout_constraintStart_toStartOf="@+id/btnSendData"
             app:layout_constraintTop_toBottomOf="@+id/btnSendData" />
 
@@ -135,7 +135,8 @@
                 android:text="MESSAGE LOG"
                 android:textColor="@color/textColor"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="20dp"/>
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="5dp"/>
 
             <TextView
                 android:id="@+id/tvLogData"
