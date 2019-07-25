@@ -130,8 +130,7 @@ public class MainActivity extends AppCompatActivity {
 //                    mTvReceiveData.setText(readMessage);
                     enMessage = decode(readMessage);
                     mTvReceiveData.setText(enMessage);
-                    logMessage = enMessage + logMessage;
-                    logMessage += "\n";
+                    logMessage = enMessage + "\n" + logMessage;
                     mTvLogData.setText(logMessage);
                 }
             }
