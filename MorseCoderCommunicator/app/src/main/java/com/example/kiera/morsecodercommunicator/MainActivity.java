@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -121,16 +122,16 @@ public class MainActivity extends AppCompatActivity {
                     String readMessage = "";
                     String enMessage;
                     try {
-                        readMessage = "";
                         readMessage = new String((byte[]) msg.obj, "UTF-8");
-                        Toast.makeText(getApplicationContext(), readMessage, Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), readMessage, Toast.LENGTH_LONG).show();
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
 //                    mTvReceiveData.setText(readMessage);
                     enMessage = decode(readMessage);
                     mTvReceiveData.setText(enMessage);
-                    logMessage = enMessage + logMessage + "\n";
+                    logMessage = enMessage + logMessage;
+                    logMessage += "\n";
                     mTvLogData.setText(logMessage);
                 }
             }
@@ -290,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
         }
         public void run() {
             byte[] buffer = new byte[1024];
-            int bytes;
+            int bytes = 0;
 
             while (true) {
                 try {
@@ -303,6 +304,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch (IOException e) {
                     break;
+                } finally {
+                    // clear buffer
+                    buffer = new byte[1024];
                 }
             }
         }
